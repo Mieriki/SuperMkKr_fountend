@@ -16,22 +16,24 @@
 		</div>
 		
 		<el-button  @click="handleSearch" style="margin-left: 5px; width: 75px; height: 32px;" size="small" type="primary">搜索</el-button>
-
-		<el-button type="primary" style="width: 80px; height: 32px;" size="small" @click="nextAdd">新增<el-icon><CirclePlus /></el-icon></el-button>
-		<el-button type="danger" style="margin-left: 5px; width: 80px; height: 32px;" size="small" @click="handleDeleteAccounts">批量删除<el-icon><Remove /></el-icon></el-button>
-		<el-upload 
-			list-type="text"
-			accept=".xls, .xlsx"
-			:file-list="fileList"
-			:headers="headers"
-			:action="postUrl"
-			:limit="1"
-			:multiple="false"
-			:show-file-list="false"
-			:on-success="uploadSuccess">
-			<el-button type="primary" style="margin-left: 5px; width: 80px; height: 32px;" size="small">导入<el-icon><Download /></el-icon></el-button>
-		</el-upload>
-		<el-button type="primary" style="margin-left: 5px; width: 80px; height: 32px;" size="small" @click="exportData">导出<el-icon><Upload /></el-icon></el-button>
+		<el-row style="margin-left: 10px;">
+			<el-button type="primary" style="width: 80px; height: 32px;" size="small" @click="nextAdd">新增<el-icon><CirclePlus /></el-icon></el-button>
+			<el-button type="danger" style="margin-left: 5px; width: 80px; height: 32px;" size="small" @click="handleDeleteAccounts">批量删除<el-icon><Remove /></el-icon></el-button>
+			<el-upload 
+				list-type="text"
+				accept=".xls, .xlsx"
+				:file-list="fileList"
+				:headers="headers"
+				:action="postUrl"
+				:limit="1"
+				:multiple="false"
+				:show-file-list="false"
+				:on-success="uploadSuccess">
+				<el-button type="primary" style="margin-left: 5px; width: 80px; height: 32px;" size="small">导入<el-icon><Download /></el-icon></el-button>
+			</el-upload>
+			<el-button type="primary" style="margin-left: 5px; width: 80px; height: 32px;" size="small" @click="exportData">导出<el-icon><Upload /></el-icon></el-button>
+		</el-row>
+		
 	</el-row>
 	<!-- 按钮 -->
 	
@@ -300,10 +302,7 @@
 	}
 	
 	function exportData() {
-		// window.open('http://localhost:8080/account/export')
-		get("account/export", () => {
-			ElMessage.success("ok")
-		})
+		window.open('http://localhost:8080/account/export')
 	}
 	
 	function uploadSuccess(data) {
