@@ -2,15 +2,17 @@ import { createStore } from 'vuex'
 
 const store = createStore({
 	state: {
-		num: 100
+		num:10, 
+		accountId: null
 	},
 	mutations: {
-		increment (state) {
-		    state.num++
-		  }
+		setAccountId(state, accountId) {
+			state.accountId = accountId
+		}
 	},
 	actions: {},
-	modules: {}
+	modules: {},
+	getters: {}
 })
 
 export default store

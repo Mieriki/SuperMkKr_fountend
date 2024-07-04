@@ -137,7 +137,7 @@
 	import { ref, onMounted, reactive } from 'vue';
 	import { ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElMessage } from 'element-plus';
 	import { Search, CirclePlus, Remove, Download, Upload } from '@element-plus/icons-vue';
-	import { get, post, accessHeader, getStorageId } from '@/net';
+	import { get, post, accessHeader } from '@/net';
 	import router from '@/router';
 	
 	// 响应式数据定义
@@ -145,6 +145,7 @@
 	let providerList = ref([]);
 	const addDialogVisible = ref(false)
 	const editDialogVisible = ref(false)
+	const accountId = ref(null)
 	
 	// 分页相关变量
 	const currentPage = ref(1);
@@ -160,6 +161,13 @@
 	const formRef = ref()
 	// 页面初始化加载数据
 	onMounted(() => {
+		get('/super-mk/api/v0.2/accounts/me/id', (data) => {
+			if (data) {
+				accountId.value = data
+				provider.createdBy = accountId.value;
+				provider.modifyBy = accountId.value;
+			}
+		})
 		initializePage();
 	});
 	
@@ -185,9 +193,7 @@
 		provider.proPhone = '',
 		provider.proAddress = '',
 		provider.proFax = '',
-		provider.createdBy = getStorageId()
 		provider.creationDate = '',
-		provider.modifyBy = getStorageId()
 		provider.modifyDate = null
 	}
 	
@@ -268,8 +274,6 @@
 	
 	const handleEdit = (row) => {
 		get(`/provider/get?proId=${ref(row).value.proId}`, (data) => {
-			console.log(provider)
-			console.log(data)
 			provider.proId = data.proId
 			provider.proCode = data.proCode
 			provider.proName = data.proName
@@ -278,7 +282,6 @@
 			provider.proContact = data.proContact
 			provider.proPhone = data.proPhone
 			provider.proFax = data.proFax
-			provider.modifyBy = getStorageId();
 		})
 		editDialogVisible.value = true
 	};

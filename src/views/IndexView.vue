@@ -122,7 +122,10 @@
 	import { ref, onMounted, watch, reactive } from 'vue';
 	import { RouterLink } from 'vue-router';
 	import { post } from '@/net';
-import { ElMessage } from 'element-plus';
+	import { ElMessage } from 'element-plus';
+	import { useStore } from 'vuex';
+	
+	const store = useStore()
 
 	let logoTextShow = ref(true);
 	let isCollapse = ref(false);
@@ -155,7 +158,10 @@ import { ElMessage } from 'element-plus';
 	
 	function initializePage() {	
 		getUserInfo((data) => {
-			account.value = data
+			if (data) {
+				account.value = data
+				store.commit('setAccountId', data.accountId)
+			}
 		})
 	}
 	onMounted(() => {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 
 const authItemName = "authorize"
 
@@ -31,23 +31,10 @@ function takeAccessToken() {
     return authObj.token
 }
 
-function getStorageId() {
-	const str = localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName);
-	if(!str) return null
-	const authObj = JSON.parse(str)
-	if(new Date(authObj.expire) <= new Date()) {
-	    deleteAccessToken()
-	    ElMessage.warning("登录状态已过期，请重新登录！")
-	    return null
-	}
-	return authObj.accountId
-}
-
-function storeAccessToken(remember, token, expire, accountId){
+function storeAccessToken(remember, token, expire){
     const authObj = {
         token: token,
         expire: expire,
-		accountId: accountId,
     }
     const str = JSON.stringify(authObj)
     if(remember)
@@ -93,7 +80,7 @@ function login(username, password, remember, success, failure = defaultFailure){
     }, {
         'Content-Type': 'application/x-www-form-urlencoded'
     }, (data) => {
-        storeAccessToken(remember, data.token, data.expire, data.accountId)
+        storeAccessToken(remember, data.token, data.expire)
 		
         ElMessage.success(`登录成功，欢迎 ${data.username} 来到我们的系统`)
         success(data)
@@ -117,7 +104,7 @@ function get(url, success, failure = defaultFailure) {
 }
 
 function getUserInfo(success) {
-	get('/account/find-user-info?accountId=' + getStorageId(), (data) => {
+	get(`/super-mk/api/v0.2/accounts/me`, (data) => {
 		success(data)
 	})
 }
@@ -126,4 +113,4 @@ function unauthorized() {
     return !takeAccessToken()
 }
 
-export { post, get, login, logout, unauthorized, getUserInfo, getStorageId, accessHeader }
+export { post, get, login, logout, unauthorized, getUserInfo, accessHeader }

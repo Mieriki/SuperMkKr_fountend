@@ -154,7 +154,7 @@
 	import { ref, onMounted, reactive } from 'vue';
 	import { ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElMessage } from 'element-plus';
 	import { Search, CirclePlus, Remove, Download, Upload } from '@element-plus/icons-vue';
-	import { get, post, accessHeader, getStorageId  } from '@/net';
+	import { get, post, accessHeader  } from '@/net';
 	import router from '@/router';
 	
 	// 响应式数据定义
@@ -162,6 +162,7 @@
 	let billList = ref([]);
 	const addDialogVisible = ref(false)
 	const editDialogVisible = ref(false)
+	const accountId = ref(null)
 	
 	// 分页相关变量
 	const currentPage = ref(1);
@@ -196,6 +197,13 @@
 		
 	// 页面初始化加载数据
 	onMounted(() => {
+		get('/super-mk/api/v0.2/accounts/me/id', (data) => {
+			if (data) {
+				accountId.value = data
+				bill.modifyBy = accountId.value
+				bill.createdBy = accountId.value
+			}
+		})
 		initializePage();
 	});
 	
@@ -224,9 +232,7 @@
 		bill.productCount = null
 		bill.totalPrice = null
 		bill.payment = ''
-		bill.createdBy = getStorageId()
 		bill.creationDate = null
-		bill.modifyBy = getStorageId()
 		bill.modifyDate = null
 		bill.providerId = null
 	}
@@ -252,7 +258,6 @@
 			bill.productCount = data.productCount
 			bill.totalPrice = data.totalPrice
 			bill.payment = data.payment ? 1 : 0
-			bill.modifyBy = getStorageId()
 			bill.modifyDate = null
 			bill.providerId = data.providerId
 		});

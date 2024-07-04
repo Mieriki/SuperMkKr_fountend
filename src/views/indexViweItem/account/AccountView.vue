@@ -2,13 +2,13 @@
 	<el-row style="margin-bottom: 10px;">
 		<!-- 搜索框 -->
 		<div>
-			<el-input v-model="searchValue" style="width: 400px; " size="small" placeholder="请输入姓名或编号" type="text">
+			<el-input v-model="searchValue.username" style="width: 400px; " size="small" placeholder="请输入姓名或编号" type="text">
 				<template #prepend>
 				    <el-button @click="handleSearch" :icon="Search" />
 				</template>
 				<template #append>
-					<el-select v-model="account.roleName" placeholder="职位" style="width: 120px;">
-						<el-option v-model="account.roleName" key="" label="无" value=""></el-option>
+					<el-select v-model="searchValue.role" filterable placeholder="职位" style="width: 140px;">
+						<el-option key="" label="无" value=""></el-option>
 						<el-option v-for="item in roleNameList" :key="item.roleName" :label="item.roleDescp" :value="item.roleName"></el-option>
 					</el-select>
 				</template>
@@ -63,9 +63,9 @@
 		<el-pagination
 			@size-change="handleSizeChange"
 			@current-change="handleCurrentChange"
-			v-model:current-page="currentPage"
+			v-model:current-page="searchValue.currentPage"
 			:page-sizes="[5, 10, 15, 20]"
-			:page-size="pageSize"
+			:page-size="searchValue.pageSize"
 			layout="total, sizes, prev, pager, next, jumper"
 			:total="count" >
 		</el-pagination>
@@ -163,18 +163,22 @@
 	import { ref, onMounted, reactive } from 'vue';
 	import { ElInput, ElButton, ElTable, ElTableColumn, ElPagination, ElMessage } from 'element-plus';
 	import { Search, CirclePlus, Remove, Download, Upload, Lock } from '@element-plus/icons-vue';
-	import { get, post, accessHeader, getStorageId } from '@/net';
+	import { get, post, accessHeader } from '@/net';
 	import router from '@/router';
+	import { useStore } from 'vuex';
+	
+	const store  = useStore()
 
 	// 响应式数据定义
-	const searchValue = ref('');
 	let accountList = ref([]);
 	const addDialogVisible = ref(false)
 	const editDialogVisible = ref(false)
+	const accountId = ref(null)
+
 
 	// 分页相关变量
-	const currentPage = ref(1);
-	const pageSize = ref(10);
+	// const currentPage = ref(1);
+	// const pageSize = ref(10);
 	let selectedRowList = ref([])
 	const count = ref(0)
 	
@@ -203,26 +207,40 @@
 		modifyBy: null
 	})
 	
-	
+	let searchValue = reactive({
+		username: '',
+		role: '',
+		currentPage: 1,
+		pageSize: 10
+	})
 
 	// 页面初始化加载数据
 	onMounted(() => {
+		get('/super-mk/api/v0.2/accounts/me/id', (data) => {
+			if (data) {
+				accountId.value = data
+				account.createdBy = accountId.value;
+				account.modifyBy = accountId.value;
+			}
+		})
 		initializePage();
 	});
 
 	  // 初始化页面数据
 	function initializePage() {
-		get(`/account/find-all-user?offset=${(currentPage.value - 1) * pageSize.value}&pageSize=${pageSize.value}`, (data) => {
+		post(`/super-mk/api/v0.2/accounts/tables`, searchValue, (data) => {
 			accountList.value = data;
 		});
-		get('/role/find-all-role', (data) => {
+		get('/super-mk/api/v0.2/roles/list', (data) => {
 			roleNameList.value = data
 		});
-		get('/account/count', (data) => {
+		post('/super-mk/api/v0.2/accounts/count', searchValue, (data) => {
 			count.value = data
 		}) 
 		handleClose()
+		
 	};
+	
 	function handleClose() {
 		addDialogVisible.value = false
 		editDialogVisible.value = false
@@ -236,23 +254,18 @@
 		account.phone = ''
 		account.address = ''
 		account.roleName = ''
-		account.createdBy = null
-		account.modifyBy = null
-		account.createdBy = getStorageId();
-		account.modifyBy = getStorageId();
 	}
 
 	// 处理搜索按钮点击事件
 	const handleSearch = () => {
-		get(`/account/find-searched-user?username=${searchValue.value}&role=${account.roleName}&offset=${(currentPage.value - 1) * pageSize.value}&pageSize=${pageSize.value}`, (data) => {
-			accountList.value = data;
-		});
+		searchValue.currentPage = 1
+		initializePage()
 	};
 	
     const handleEdit = (row) => {
 		console.log(ref(row).value.accountId)
 		
-		get(`account/find-user-info?accountId=${ref(row).value.accountId}`, (data) => {
+		get(`/super-mk/api/v0.2/accounts/${ref(row).value.accountId}`, (data) => {
 			console.log(data)
 			account.accountId = data.accountId
 			account.userCode = data.userCode
@@ -274,7 +287,7 @@
 
 	// 处理分页大小变化
 	const handleSizeChange = (val) => {
-		pageSize.value = val;
+		searchValue.pageSize = val;
 		initializePage();
 	};
 
@@ -288,16 +301,16 @@
     };
 	
 	function handleDeleteAccounts() {
-		post('account/delete-list', selectedRowList.value, () => {
+		post('/super-mk/api/v0.2/accounts/accounts', selectedRowList.value.map(account => account.accountId), () => {
 			ElMessage.success(`删除成功!`)
 			initializePage();
 		})
 	};
 	
 	const handleDeleteAccount = (ros) => {
-		post('account/delete-list', [ros], () => {
-			ElMessage.success(`删除成功!`)
-			initializePage();
+		get(`/super-mk/api/v0.2/accounts/account/${ros.accountId}`, () => {
+			ElMessage.success('删除成功!')
+			initializePage()
 		})
 	}
 	
@@ -316,7 +329,7 @@
 	function addSubmitForm() {
 		addFormRef.value.validate((isValid) => {
 			if(isValid) {
-				post('/account/add', account, () => {
+				post('/super-mk/api/v0.2/accounts/', account, () => {
 					ElMessage.success('添加成功!')
 					initializePage()
 				})
@@ -339,7 +352,7 @@
 		editFormRef.value.validate((isValid) => {
 			if(isValid) {
 				console.log(account)
-				post('/account/modify', account, () => {
+				post('/super-mk/api/v0.2/accounts/account', account, () => {
 					ElMessage.success('修改成功!')
 					// router.push('/account')
 					initializePage()
