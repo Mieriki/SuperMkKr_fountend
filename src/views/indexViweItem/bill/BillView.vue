@@ -30,7 +30,7 @@
 	
 	<el-table :data="billList" border :header-cell-class-name="headerBg" @selection-change="handleSelectionChange" max-height=530>
 		<el-table-column type="selection" width="55"/>
-		<el-table-column prop="billCode" label="订单编号" width="120">
+		<el-table-column prop="billCode" label="订单编号" width="150">
 		</el-table-column>
 		<el-table-column prop="productName" label="商品名称" width="170">
 		</el-table-column>
@@ -72,9 +72,6 @@
 		width=620
 	    :before-close="handleClose">
 		<el-form :model="bill" :rules="rules" ref="formRef" label-width="100px">
-			<el-form-item label="订单编号" prop="billCode" style="width: 300px;">
-				<el-input v-model="bill.billCode"></el-input>
-			</el-form-item>
 			<el-form-item label="商品名称" prop="productName" style="width: 500px;">
 				<el-input v-model="bill.productName"></el-input>
 			</el-form-item>
@@ -113,9 +110,6 @@
 		width=620
 	    :before-close="handleClose">
 		<el-form :model="bill" :rules="rules" ref="formRef" label-width="100px">
-			<el-form-item label="订单编号" prop="billCode" style="width: 300px;">
-				<el-input v-model="bill.billCode"></el-input>
-			</el-form-item>
 			<el-form-item label="商品名称" prop="productName" style="width: 500px;">
 				<el-input v-model="bill.productName"></el-input>
 			</el-form-item>
@@ -225,7 +219,6 @@
 		addDialogVisible.value = false
 		editDialogVisible.value = false
 		bill.billId = null
-		bill.billCode = ''
 		bill.productName = ''
 		bill.productDesc = ''
 		bill.productUnit = ''
@@ -251,7 +244,6 @@
 	const handleEdit = (row) => {
 		get(`/bill/find-bill?billId=${ref(row).value.billId}`, (data) => {
 			bill.billId = data.billId
-			bill.billCode = data.billCode
 			bill.productName = data.productName
 			bill.productDesc = data.productDesc
 			bill.productUnit = data.productUnit

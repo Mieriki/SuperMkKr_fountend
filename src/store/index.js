@@ -2,13 +2,16 @@ import { createStore } from 'vuex'
 
 const store = createStore({
 	state: {
-		num:10, 
+		flash: false, 
 		accountId: null
 	},
 	mutations: {
 		setAccountId(state, accountId) {
 			state.accountId = accountId
-		}
+		}, 
+		setFlash(state, flash) {
+			state.flash = flash
+		} 
 	},
 	actions: {},
 	modules: {},

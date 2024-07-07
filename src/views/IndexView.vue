@@ -39,6 +39,10 @@
 							<el-icon class="iconColor"><Van /></el-icon>
 							<samp>订单管理</samp>
 						</el-menu-item>	
+						<el-menu-item index="/data">
+							<el-icon class="iconColor"><Histogram /></el-icon>
+							<samp>数据分析</samp>
+						</el-menu-item>	
 					</el-sub-menu>
 				</el-menu>
 			</el-aside>
@@ -51,12 +55,13 @@
 					<div class="dropdown-container">
 						<el-dropdown>
 							<div class="dropdown-content">
-								<span style="margin-right: 5px;"> {{ account.username }} </span>
-								<el-icon><User /></el-icon>
+								<span style="margin-right: 5px; font-size: 14px;"> {{ account.username }} </span>
+								<!-- <el-icon><User /></el-icon> -->
+								<el-avatar :src="account.avater" :size="25"></el-avatar>
 							</div>
 						    <template #dropdown>
 								<el-dropdown-menu>
-									<el-dropdown-item>个人信息</el-dropdown-item>
+									<el-dropdown-item @click="nextInfo">个人信息</el-dropdown-item>
 									<el-dropdown-item @click="handleResetPassword">修改密码</el-dropdown-item>
 									<el-dropdown-item @click="userLogout">退出登录</el-dropdown-item>
 									<!-- <el-dropdown-item disabled>Action 4</el-dropdown-item>
@@ -118,14 +123,16 @@
 <script setup>
 	import { logout, getUserInfo } from '@/net';
 	import router from '@/router';
-	import { HomeFilled, Fold, Expand, Menu, User, UserFilled, OfficeBuilding, Van } from '@element-plus/icons-vue';
+	import { HomeFilled, Fold, Expand, Menu, User, UserFilled, OfficeBuilding, Van, Histogram } from '@element-plus/icons-vue';
 	import { ref, onMounted, watch, reactive } from 'vue';
 	import { RouterLink } from 'vue-router';
-	import { post } from '@/net';
+	import { post, get } from '@/net';
 	import { ElMessage } from 'element-plus';
 	import { useStore } from 'vuex';
 	
 	const store = useStore()
+	
+	const flash = ref(store.state.flash);
 
 	let logoTextShow = ref(true);
 	let isCollapse = ref(false);
@@ -160,22 +167,43 @@
 		getUserInfo((data) => {
 			if (data) {
 				account.value = data
+				console.log(data)
 				store.commit('setAccountId', data.accountId)
 			}
 		})
+		store.commit('setFlash', false)
+		flash.value = false;
 	}
 	onMounted(() => {
 		initializePage();
 	});
 
-	watch(() => router.currentRoute.value, (to) => {
-		if (to.name.split('-').length > 1) {
-			breadList.value = [{path: to.path, name: to.name.split('-')[1]}]
-		} else {
-			breadList.value = []
-		}
-	},{immediate: true,deep: true})
-	
+	watch(
+		// 监听的表达式或函数
+		() => ({
+			route: router.currentRoute.value,
+			flash: store.state.flash
+		}),
+		// 回调函数
+		(newValue, oldValue) => {
+		// 在这里执行需要的逻辑
+			console.log('route 或 flash 变化了：', newValue);
+
+			// 更新 breadList 和 flash 等值
+			if (newValue.route.name.split('-').length > 1) {
+				breadList.value = [{ path: newValue.route.path, name: newValue.route.name.split('-')[1] }];
+			} else {
+				breadList.value = [];
+			}
+
+			flash.value = newValue.flash; // 更新本地的 ref
+			if (flash.value === true) {
+				initializePage()
+			} 
+		},
+		// 选项
+		{ immediate: true, deep: true }
+	);
 	function handleResetPassword() {
 		pwdDialogVisible.value = true
 	}
@@ -185,6 +213,10 @@
 		resetPassword.originalPassword = '',
 		resetPassword.newPassword = '',
 		resetPassword.confirmNewPassword = ''
+	}
+	
+	function nextInfo() {
+		router.push(`/account-info`)
 	}
 	
 	function submitForm() {
@@ -284,4 +316,9 @@
 	.iconColor {
 		color: #b1b3b8;
 	}
+	
+	.el-dropdown-link:focus-visible {
+	  outline: unset;
+	}
+
 </style>

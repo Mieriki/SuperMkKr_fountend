@@ -25,7 +25,6 @@
 				:file-list="fileList"
 				:headers="headers"
 				:action="postUrl"
-				:limit="1"
 				:multiple="false"
 				:show-file-list="false"
 				:on-success="uploadSuccess">
@@ -351,7 +350,7 @@
 	function editSubmitForm() {
 		editFormRef.value.validate((isValid) => {
 			if(isValid) {
-				console.log(account)
+				console.log(JSON.stringify(account))
 				post('/super-mk/api/v0.2/accounts/account', account, () => {
 					ElMessage.success('修改成功!')
 					// router.push('/account')
