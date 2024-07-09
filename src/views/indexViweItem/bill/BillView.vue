@@ -1,11 +1,23 @@
 <template>
 	<div style="margin-bottom: 10px;">
 		<el-row>
-			<el-input v-model="searchValue" style="width: 240px;" size="small" placeholder="请输入名称" type="text">
+			<el-input v-model="searchValue.billName" style="width: 340px;" size="small" placeholder="请输入名称" type="text">
 				<template #prepend>
 				    <el-button @click="handleSearch" :icon="Search" />
 				</template>
+				<template #append>
+					<el-select v-model="searchValue.payment" placeholder="是否支付" style="width: 100px;">
+						<el-option label="无" value=""></el-option>
+						<el-option label="已支付" value="1"></el-option>
+						<el-option label="未支付" value="0"></el-option>
+					</el-select>
+				</template>
+				
 			</el-input>
+			<el-select v-model="searchValue.providerId" placeholder="请选择供应商" style="width: 250px; margin-left: 5px;">
+				<el-option key="" label="无" value=""></el-option>
+				<el-option v-for="item in providerNameList" :key="item.proId" :label="item.proName" :value="item.proId"></el-option>
+			</el-select>
 			<el-button  @click="handleSearch" style="margin-left: 5px; width: 75px; height: 32px;" size="small" type="primary">搜索</el-button>
 			
 			
@@ -17,7 +29,6 @@
 				:file-list="fileList"
 				:headers="headers"
 				:action="postUrl"
-				:limit="1"
 				:multiple="false"
 				:show-file-list="false"
 				:on-success="uploadSuccess">
@@ -58,9 +69,9 @@
 	  <el-pagination
 	    @size-change="handleSizeChange"
 	    @current-change="handleCurrentChange"
-	    v-model:current-page="currentPage"
+	    v-model:current-page="searchValue.currentPage"
 	    :page-sizes="[5, 10, 15, 20]"
-	    :page-size="pageSize"
+	    :page-size="searchValue.pageSize"
 	    layout="total, sizes, prev, pager, next, jumper"
 	    :total="count">
 	  </el-pagination>
@@ -152,11 +163,18 @@
 	import router from '@/router';
 	
 	// 响应式数据定义
-	const searchValue = ref('');
 	let billList = ref([]);
 	const addDialogVisible = ref(false)
 	const editDialogVisible = ref(false)
 	const accountId = ref(null)
+	
+	let searchValue = reactive({
+		billName: '',
+		providerId: '',
+		payment: '',
+		currentPage: 1,
+		pageSize: 10
+	})
 	
 	// 分页相关变量
 	const currentPage = ref(1);
@@ -203,10 +221,10 @@
 	
 	  // 初始化页面数据
 	function initializePage() {
-		get(`/bill/find-all?offset=${(currentPage.value - 1) * pageSize.value}&pageSize=${pageSize.value}`, (data) => {
+		post(`/super-mk/api/v0.2/bills/tables`, searchValue, (data) => {
 			billList.value = data;
 		});
-		get('/bill/count', (data) => {
+		post('/super-mk/api/v0.2/bills/count', searchValue, (data) => {
 			count.value = data;
 		});
 		get('/provider/find-all-list', (data) => {
@@ -231,9 +249,8 @@
 	}
 	
 	const handleSearch = () => {
-		get(`/bill/find-like?productName=${searchValue.value}&offset=${(currentPage.value - 1) * pageSize.value}&pageSize=${pageSize.value}`, (data) => {
-			billList.value = data;
-		});
+		searchValue.currentPage = 1
+		initializePage()
 	};
 	
 	// 跳转到新增页面
@@ -257,10 +274,21 @@
 	};
 	
 	function handleDeleteAccounts() {
-		post('/bill/delete', selectedRowList.value, () => {
+		post(`/super-mk/api/v0.2/bills/bills`, selectedRowList.value.map(bill => bill.billId), () => {
 			ElMessage.success(`删除成功!`)
 			initializePage();
 		})
+	};
+	
+	// 处理分页大小变化
+	const handleSizeChange = (val) => {
+		searchValue.pageSize = val;
+		initializePage();
+	};
+	
+	// 处理当前页码变化
+	const handleCurrentChange = (val) => {
+		initializePage();
 	};
 	
 	function handleSelectionChange(selection) {
@@ -268,7 +296,7 @@
 	};
 	
 	const handleDeleteAccount = (ros) => {
-		post('/bill/delete', [ros], () => {
+		get(`/super-mk/api/v0.2/bills/bill/${ros.billId}`, () => {
 			ElMessage.success(`删除成功!`)
 			initializePage();
 		})

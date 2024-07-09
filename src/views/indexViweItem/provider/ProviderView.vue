@@ -2,7 +2,7 @@
 <!-- 搜索框 -->
 <div style="margin-bottom: 10px;">
 	<el-row>
-		<el-input v-model="searchValue" style="width: 240px;" size="small" placeholder="请输入名称" type="text">
+		<el-input v-model="searchValue.proName" style="width: 240px;" size="small" placeholder="请输入名称" type="text">
 			<template #prepend>
 				<el-button @click="handleSearch" :icon="Search" />
 			</template>
@@ -17,7 +17,6 @@
 			:file-list="fileList"
 			:headers="headers"
 			:action="postUrl"
-			:limit="1"
 			:multiple="false"
 			:show-file-list="false"
 			:on-success="uploadSuccess">
@@ -57,9 +56,9 @@
 		<el-pagination
 			@size-change="handleSizeChange"
 			@current-change="handleCurrentChange"
-			v-model:current-page="currentPage"
+			v-model:current-page="searchValue.currentPage"
 			:page-sizes="[5, 10, 15, 20]"
-			:page-size="pageSize"
+			:page-size="searchValue.pageSize"
 			layout="total, sizes, prev, pager, next, jumper"
 			:total="count">
 		</el-pagination>
@@ -141,17 +140,20 @@
 	import router from '@/router';
 	
 	// 响应式数据定义
-	const searchValue = ref('');
 	let providerList = ref([]);
 	const addDialogVisible = ref(false)
 	const editDialogVisible = ref(false)
 	const accountId = ref(null)
 	
 	// 分页相关变量
-	const currentPage = ref(1);
-	const pageSize = ref(10);
 	let selectedRowList = ref([])
 	const count = ref(0)
+	
+	let searchValue = reactive({
+		proName: '',
+		currentPage: 1,
+		pageSize: 10
+	})
 	
 	let fileName = ref("multipartFiles")
 	let headers =ref(accessHeader())
@@ -173,10 +175,10 @@
 	
 	// 初始化页面数据
 	function initializePage() {
-		get(`/provider/find-all?offset=${(currentPage.value - 1) * pageSize.value}&pageSize=${pageSize.value}`, (data) => {
+		post(`super-mk/api/v0.2/providers/tables`, searchValue, (data) => {
 			providerList.value = data;
 		});
-		get('/provider/count', (data) => {
+		post('super-mk/api/v0.2/providers/count', searchValue, (data) => {
 			count.value = data
 		})
 		handleClose()
@@ -243,9 +245,8 @@
 	}
 	
 	const handleSearch = () => {
-		get(`/provider/find-like?proName=${searchValue.value}&offset=${(currentPage.value - 1) * pageSize.value}&pageSize=${pageSize.value}`, (data) => {
-			providerList.value = data;
-		});
+		searchValue.currentPage = 1
+		initializePage()
 	};
 	
 	// 跳转到新增页面
@@ -255,18 +256,29 @@
 	};
 	
 	const handleDeleteAccount = (ros) => {
-		post('/provider/delete', [ros], () => {
+		get(`/super-mk/api/v0.2/providers/provider/${ros.proId}`, () => {
 			ElMessage.success(`删除成功!`)
 			initializePage();
 		})
 	}
+	
+	// 处理分页大小变化
+	const handleSizeChange = (val) => {
+		searchValue.pageSize = val;
+		initializePage();
+	};
+	
+	// 处理当前页码变化
+	const handleCurrentChange = (val) => {
+		initializePage();
+	};
 	
 	function handleSelectionChange(selection) {
 		selectedRowList.value = selection;
     };
 	
 	function handleDeleteAccounts() {
-		post('/provider/delete', selectedRowList.value, () => {
+		post('/super-mk/api/v0.2/providers/providers', selectedRowList.value.map(pro => pro.proId), () => {
 			ElMessage.success(`删除成功!`)
 			initializePage();
 		})

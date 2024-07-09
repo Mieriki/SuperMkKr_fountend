@@ -53,6 +53,10 @@ const router = createRouter({
 					path: 'data',
 					name: 'index-数据分析',
 					component: () => import('@/views/indexViweItem/data/DataView.vue')
+				}, {
+					path: 'test',
+					name: 'index-测试',
+					component: () => import('@/views/test.vue')
 				}
 			]
         }

@@ -22,7 +22,7 @@
 							<span>首页</span>
 						</template>
 					</el-menu-item>
-					<el-sub-menu :icon="Menu">
+					<el-sub-menu index="1">
 					    <template #title>
 							<el-icon class="iconColor"><Menu /></el-icon>
 							<span>系统管理</span>
@@ -39,9 +39,15 @@
 							<el-icon class="iconColor"><Van /></el-icon>
 							<samp>订单管理</samp>
 						</el-menu-item>	
+					</el-sub-menu>
+					<el-sub-menu index="2">
+					    <template #title>
+							<el-icon class="iconColor"><TrendCharts /></el-icon>
+							<span>数据分析</span>
+					    </template>
 						<el-menu-item index="/data">
 							<el-icon class="iconColor"><Histogram /></el-icon>
-							<samp>数据分析</samp>
+							<samp>图表分析</samp>
 						</el-menu-item>	
 					</el-sub-menu>
 				</el-menu>
@@ -123,7 +129,7 @@
 <script setup>
 	import { logout, getUserInfo } from '@/net';
 	import router from '@/router';
-	import { HomeFilled, Fold, Expand, Menu, User, UserFilled, OfficeBuilding, Van, Histogram } from '@element-plus/icons-vue';
+	import { HomeFilled, Fold, Expand, Menu, User, UserFilled, OfficeBuilding, Van, Histogram, TrendCharts } from '@element-plus/icons-vue';
 	import { ref, onMounted, watch, reactive } from 'vue';
 	import { RouterLink } from 'vue-router';
 	import { post, get } from '@/net';
