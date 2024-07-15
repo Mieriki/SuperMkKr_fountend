@@ -11,7 +11,7 @@
 				    :collapse="isCollapse"
 					router>
 					<div style="display: flex; align-items: center; justify-content: center; height: 60px;">
-					    <el-image src="../src/assets/logo.png" alt="" style="width: 15px; position: relative; top: 5px; margin-right: 5px;"></el-image>
+					    <el-image src="https://t.tutu.to/img/mZhyw" alt="" style="width: 15px; position: relative; top: 5px; margin-right: 5px;"></el-image>
 					    <b style="color: #FFF;" v-show="logoTextShow">超市订单管理系统</b>
 					</div>
 					<el-menu-item index="/">
