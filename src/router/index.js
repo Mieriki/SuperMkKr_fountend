@@ -57,6 +57,10 @@ const router = createRouter({
 					path: 'test',
 					name: 'index-测试',
 					component: () => import('@/views/test.vue')
+				}, {
+					path: 'user',
+					name: 'index-springclouddemo',
+					component: () => import('@/views/indexViweItem/springclouddemo/user/UserView.vue')
 				}
 			]
         }

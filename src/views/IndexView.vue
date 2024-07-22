@@ -1,13 +1,14 @@
 <template>
 	<div>
 		<el-container style="height: 100%;min-height: 100vh">
-			<el-aside :width="sideWidth + 'px'" style="background-color: rgb(238, 241, 246);min-height: 100%;box-shadow: 2px 0 6px rgba(0,21,41,.35);">
+			<el-aside :width="sideWidth + 'px'" style="background-color: #00525f;min-height: 100%;box-shadow: 2px 0 6px rgba(0,21,41,.35); transition: 300ms;">
 				<el-menu 
-					:default-openeds="['1', '3']" style="height: 100%;overflow-x: hidden"
-				    background-color="rgb(48,65,86)"
+					:default-openeds="['1', '3']" style="height: 100%; overflow-x: hidden; transition: 300ms; border: none;"
+				    background-color="#00525f"
 				    text-color="#FFF"
-				    active-text-color="#409efc"
+				    active-text-color="#ffbc98"
 				    :collapse-transition="false"
+					:width="sideWidth + 'px'" 
 				    :collapse="isCollapse"
 					router>
 					<div style="display: flex; align-items: center; justify-content: center; height: 60px;">
@@ -50,6 +51,16 @@
 							<samp>图表分析</samp>
 						</el-menu-item>	
 					</el-sub-menu>
+					<el-sub-menu index="3">
+					    <template #title>
+							<el-icon class="iconColor"><HelpFilled /></el-icon>
+							<span>SpringCloudDemo</span>
+					    </template>
+						<el-menu-item index="/user">
+							<el-icon class="iconColor"><Histogram /></el-icon>
+							<samp>用户测试</samp>
+						</el-menu-item>	
+					</el-sub-menu>
 				</el-menu>
 			</el-aside>
 			<el-container>
@@ -59,7 +70,7 @@
 						<el-icon v-show="!logoTextShow"  @click="collape"><Expand /></el-icon>
 					</div>
 					<div class="dropdown-container">
-						<el-dropdown>
+						<el-dropdown style="cursor: pointer;">
 							<div class="dropdown-content">
 								<span style="margin-right: 5px; font-size: 14px;"> {{ account.username }} </span>
 								<!-- <el-icon><User /></el-icon> -->
@@ -129,7 +140,7 @@
 <script setup>
 	import { logout, getUserInfo } from '@/net';
 	import router from '@/router';
-	import { HomeFilled, Fold, Expand, Menu, User, UserFilled, OfficeBuilding, Van, Histogram, TrendCharts } from '@element-plus/icons-vue';
+	import { HomeFilled, Fold, Expand, Menu, User, UserFilled, OfficeBuilding, Van, Histogram, TrendCharts, HelpFilled } from '@element-plus/icons-vue';
 	import { ref, onMounted, watch, reactive } from 'vue';
 	import { RouterLink } from 'vue-router';
 	import { post, get } from '@/net';

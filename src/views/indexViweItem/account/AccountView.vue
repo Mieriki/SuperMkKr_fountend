@@ -53,7 +53,20 @@
 		<el-table-column label="操作" fixed="right">
 			<template #default="scope">
 				<el-button size="small" type="warning" @click="handleEdit(scope.row)">编辑</el-button>
-				<el-button type="danger" size="small" @click="handleDeleteAccount(scope.row)">删除</el-button>
+				<el-popconfirm 
+					confirm-button-text="删除"
+				    cancel-button-text="点错了"
+				    :icon="InfoFilled"
+					confirm-button-type="danger"
+				    icon-color="#ef0004"
+				    title="确认要删除此用户?"
+					:width="200"
+					@confirm="handleDeleteAccount(scope.row)"
+					>
+				    <template #reference>
+						<el-button type="danger" size="small">删除</el-button>
+				    </template>
+				  </el-popconfirm>
 			</template>
 		</el-table-column>
 	</el-table>
@@ -173,6 +186,8 @@
 	const addDialogVisible = ref(false)
 	const editDialogVisible = ref(false)
 	const accountId = ref(null)
+	
+	const headerBg = ref('headerBg');
 
 
 	// 分页相关变量
@@ -542,6 +557,6 @@
 
 <style scoped>
 	.headerBg {
-		background-color: #cccccc!important;
+		background-color: #000000!important;
 	}
 </style>
