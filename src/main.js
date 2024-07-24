@@ -7,7 +7,7 @@ import ElementPlus from 'element-plus';
 
 import 'element-plus/theme-chalk/dark/css-vars.css'
 
-axios.defaults.baseURL = 'http://localhost:8080'
+axios.defaults.baseURL = 'http://localhost:7002/api/'
 
 const app = createApp(App)
 

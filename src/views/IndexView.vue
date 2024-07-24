@@ -13,7 +13,7 @@
 					router>
 					<div style="display: flex; align-items: center; justify-content: center; height: 60px;">
 					    <el-image src="https://t.tutu.to/img/mZhyw" alt="" style="width: 15px; position: relative; top: 5px; margin-right: 5px;"></el-image>
-					    <b style="color: #FFF;" v-show="logoTextShow">超市订单管理系统</b>
+					    <b style="color: #FFF;" v-show="logoTextShow">SpringCloudDemo</b>
 					</div>
 					<el-menu-item index="/">
 						<el-icon class="iconColor" v-show="!logoTextShow"><HomeFilled /></el-icon>
@@ -25,38 +25,10 @@
 					</el-menu-item>
 					<el-sub-menu index="1">
 					    <template #title>
-							<el-icon class="iconColor"><Menu /></el-icon>
+							<el-icon class="iconColor"><Fold /></el-icon>
 							<span>系统管理</span>
 					    </template>
-						<el-menu-item index="/account">
-							<el-icon class="iconColor"><UserFilled /></el-icon> 
-							<samp>用户管理</samp>
-						</el-menu-item>	
-						<el-menu-item index="/provider">
-							<el-icon class="iconColor"><OfficeBuilding /></el-icon>
-							<samp>供应商管理</samp>
-						</el-menu-item>	
-						<el-menu-item index="/bill">
-							<el-icon class="iconColor"><Van /></el-icon>
-							<samp>订单管理</samp>
-						</el-menu-item>	
-					</el-sub-menu>
-					<el-sub-menu index="2">
-					    <template #title>
-							<el-icon class="iconColor"><TrendCharts /></el-icon>
-							<span>数据分析</span>
-					    </template>
-						<el-menu-item index="/data">
-							<el-icon class="iconColor"><Histogram /></el-icon>
-							<samp>图表分析</samp>
-						</el-menu-item>	
-					</el-sub-menu>
-					<el-sub-menu index="3">
-					    <template #title>
-							<el-icon class="iconColor"><HelpFilled /></el-icon>
-							<span>SpringCloudDemo</span>
-					    </template>
-						<el-menu-item index="/user">
+						<el-menu-item index="/employee">
 							<el-icon class="iconColor"><Histogram /></el-icon>
 							<samp>用户测试</samp>
 						</el-menu-item>	
@@ -72,17 +44,15 @@
 					<div class="dropdown-container">
 						<el-dropdown style="cursor: pointer;">
 							<div class="dropdown-content">
-								<span style="margin-right: 5px; font-size: 14px;"> {{ account.username }} </span>
+								<span style="margin-right: 5px; font-size: 14px;"> Mieriki </span>
 								<!-- <el-icon><User /></el-icon> -->
-								<el-avatar :src="account.avater" :size="25"></el-avatar>
+								<el-avatar src="https://t.tutu.to/th/mKTGj" :size="25"></el-avatar>
 							</div>
 						    <template #dropdown>
 								<el-dropdown-menu>
 									<el-dropdown-item @click="nextInfo">个人信息</el-dropdown-item>
 									<el-dropdown-item @click="handleResetPassword">修改密码</el-dropdown-item>
 									<el-dropdown-item @click="userLogout">退出登录</el-dropdown-item>
-									<!-- <el-dropdown-item disabled>Action 4</el-dropdown-item>
-									<el-dropdown-item divided>Action 5</el-dropdown-item> -->
 								</el-dropdown-menu>
 						    </template>
 						</el-dropdown>
@@ -138,37 +108,22 @@
 </template>
 
 <script setup>
-	import { logout, getUserInfo } from '@/net';
 	import router from '@/router';
 	import { HomeFilled, Fold, Expand, Menu, User, UserFilled, OfficeBuilding, Van, Histogram, TrendCharts, HelpFilled } from '@element-plus/icons-vue';
 	import { ref, onMounted, watch, reactive } from 'vue';
 	import { RouterLink } from 'vue-router';
 	import { post, get } from '@/net';
 	import { ElMessage } from 'element-plus';
-	import { useStore } from 'vuex';
-	
-	const store = useStore()
-	
-	const flash = ref(store.state.flash);
 
 	let logoTextShow = ref(true);
 	let isCollapse = ref(false);
 	let sideWidth = ref(200);
-	
-	let pwdDialogVisible = ref(false)
-	let resetPassword =  reactive({
-		originalPassword: '',
-		newPassword: '',
-		confirmNewPassword: ''
-	})
+
 	const formRef = ref()
 	
 	let account = ref({})
 	const breadList = ref([]);
-
-	function userLogout() {
-		logout(() => router.push("/welcome/login"))
-	}
+	
 	function collape() {
 	  isCollapse.value = !isCollapse.value;
 	  if (isCollapse.value) {
@@ -180,122 +135,31 @@
 	  }
 	}
 	
-	function initializePage() {	
-		getUserInfo((data) => {
-			if (data) {
-				account.value = data
-				console.log(data)
-				store.commit('setAccountId', data.accountId)
-			}
-		})
-		store.commit('setFlash', false)
-		flash.value = false;
-	}
+	function initializePage() {}
 	onMounted(() => {
 		initializePage();
 	});
 
 	watch(
-		// 监听的表达式或函数
 		() => ({
 			route: router.currentRoute.value,
-			flash: store.state.flash
-		}),
-		// 回调函数
-		(newValue, oldValue) => {
-		// 在这里执行需要的逻辑
-			console.log('route 或 flash 变化了：', newValue);
-
-			// 更新 breadList 和 flash 等值
+		}), (newValue, oldValue) => {
 			if (newValue.route.name.split('-').length > 1) {
 				breadList.value = [{ path: newValue.route.path, name: newValue.route.name.split('-')[1] }];
 			} else {
 				breadList.value = [];
 			}
-
-			flash.value = newValue.flash; // 更新本地的 ref
-			if (flash.value === true) {
-				initializePage()
-			} 
-		},
-		// 选项
-		{ immediate: true, deep: true }
+		}, { immediate: true, deep: true }
 	);
-	function handleResetPassword() {
-		pwdDialogVisible.value = true
-	}
+	function handleResetPassword() {}
 	
-	function handleClose() {
-		pwdDialogVisible.value = false
-		resetPassword.originalPassword = '',
-		resetPassword.newPassword = '',
-		resetPassword.confirmNewPassword = ''
-	}
+	function handleClose() {}
 	
-	function nextInfo() {
-		router.push(`/account-info`)
-	}
+	function nextInfo() {}
 	
-	function submitForm() {
-		formRef.value.validate((isValid) => {
-			if(isValid) {
-				console.log(resetPassword)
-				post('/account/reset-password', resetPassword, () => {
-					ElMessage.success("密码修改成功")
-					handleClose()
-				})
-			} else {
-		        ElMessage.warning('请完整填写注册表单内容!')
-		    }
-		});
-		
-	}
+	function submitForm() {}
 	
-	const validatePassword = (rule, value, callback) => {
-	    if (value === '') {
-	        callback(new Error('请再次输入密码'))
-	    } else if (value !== resetPassword.newPassword) {
-	        callback(new Error("两次输入的密码不一致"))
-	    } else {
-	        callback()
-	    }
-	}
-	
-	const rules = {
-		originalPassword: [
-			{ 
-				required: true, 
-				message: '请输入旧密码', 
-				trigger: 'blur' ,
-			},
-		    { 
-				min: 6, 
-				max: 20, 
-				message: '密码的长度必须在6-20个字符之间', 
-				trigger: ['blur', 'change'] ,
-			}
-		],
-		newPassword: [
-			{ 
-				required: true, 
-				message: '请输入新密码', 
-				trigger: 'blur' ,
-			},
-		    { 
-				min: 6, 
-				max: 20, 
-				message: '密码的长度必须在6-20个字符之间', 
-				trigger: ['blur', 'change'] ,
-			}
-		],
-		confirmNewPassword: [
-		    { 
-				required: true, 
-				validator: validatePassword, 
-				trigger: ['blur', 'change'] ,
-			},
-		]
-	}
+	const rules = {}
 </script>
 
 <style scoped>
